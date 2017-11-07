@@ -9,8 +9,8 @@ let player = {
 	spdY : 5,
 	name : 'P',
 };
-	
 
+let enemyList = {}
 //enemy
 let enemy = {
 	x : 150,
@@ -18,7 +18,31 @@ let enemy = {
 	y : 350,
 	spdY : 15,
 	name : 'E',
+	id : 'E1',
 }
+enemyList['E1'] = enemy;
+
+//enemy2
+let enemy2 = {
+	x : 250,
+	spdX : 10,
+	y : 350,
+	spdY : -15,
+	name : 'E',
+	id : 'E2',
+}
+enemyList['E2'] = enemy2;
+
+//enemy3
+let enemy3 = {
+	x : 11,
+	spdX : 10,
+	y : 350,
+	spdY : 5,
+	name : 'E',
+	id : 'E3',
+}
+enemyList['E3'] = enemy3;
 
 let	message = 'Bouncing',
 	HEIGHT = 500,
@@ -27,8 +51,11 @@ let	message = 'Bouncing',
 setInterval(update, 40);
 
 function update() {
+	ctx.clearRect(0, 0, WIDTH, HEIGHT);
 	updateEntity(player);
-	updateEntity(enemy);
+	for(let key in enemyList){
+		updateEntity(enemyList[key]);
+	}
 }
 
 function updateEntity(something){
