@@ -14,24 +14,18 @@ let player = {
 	name : 'P',
 };
 
-let enemyList = {};
-
-enemy('E1', 150, 10, 350, 15);
-enemy('E2', 250, 10, 350, -15);
-enemy('E3', 11, 10, 350, 8);
-
-function getDistanceBetweenEntities(entity1,entity2){
+getDistanceBetweenEntities = function(entity1,entity2){
 	let distanceX = entity1.x - entity2.x;
 	let distanceY = entity1.y - entity2.y;
 	return Math.sqrt(distanceX*distanceX + distanceY*distanceY);
 }
 
-function testCollision (entity1, entity2) {
+testCollision = function(entity1, entity2) {
 	let colision = getDistanceBetweenEntities(entity1, entity2);
 	return colision < 30;
 }
 
-function enemy(id, x, spdX, y, spdY){
+enemy = function(id, x, spdX, y, spdY){
 	let enemy = {
 		x : x,
 		spdX : spdX,
@@ -43,9 +37,7 @@ function enemy(id, x, spdX, y, spdY){
 	enemyList[id] = enemy;
 }
 
-setInterval(update, 40);
-
-function update() {
+update = function() {
 	ctx.clearRect(0, 0, WIDTH, HEIGHT);
 	
 	for(let key in enemyList){
@@ -59,10 +51,13 @@ function update() {
 	updateEntity(player);
 }
 
-function updateEntity(something){
+drawEntity = function(something){
+	ctx.fillText(something.name, something.x, something.y);
+};
+
+updateEntityPosition = function(something){
 	something.x += something.spdX;
 	something.y += something.spdY;
-	ctx.fillText(something.name, something.x, something.y);
 	
 	if(something.x < 0 || something.x > WIDTH){
 		something.spdX = -something.spdX;
@@ -70,4 +65,16 @@ function updateEntity(something){
 	if(something.y < 0 || something.y > HEIGHT){
 		something.spdY = -something.spdY;
 	}
+}
+
+updateEntity = function(something){
+	updateEntityPosition(something);
+	drawEntity(something);
 };
+
+let enemyList = {};
+enemy('E1', 150, 10, 350, 15);
+enemy('E2', 250, 10, 350, -15);
+enemy('E3', 11, 10, 350, 8);
+
+setInterval(update, 40);
