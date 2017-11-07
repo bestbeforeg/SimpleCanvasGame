@@ -3,7 +3,8 @@ ctx.font = '30px Arial';
 
 let	message = 'Bouncing',
 	HEIGHT = 500,
-	WIDTH = 500;
+	WIDTH = 500,
+	startTime = Date.now();
 
 //player
 let player = {
@@ -12,7 +13,16 @@ let player = {
 	y : 40,
 	spdY : 5,
 	name : 'P',
+	hp : 10,
 };
+
+document.onmousemove = function(mouse) {
+	let mouseX = mouse.clientX,
+		mouseY = mouse.clientY;
+
+	player.x = mouseX;
+	player.y = mouseY;
+}
 
 getDistanceBetweenEntities = function(entity1,entity2){
 	let distanceX = entity1.x - entity2.x;
@@ -44,11 +54,18 @@ update = function() {
 		updateEntity(enemyList[key]);
 		let isColiding = testCollision(player, enemyList[key]);
 		if(isColiding){
-			console.log('Colliding')
+			player.hp--;
+			if(player.hp <= 0){
+				let surviveTime = Date.now() - startTime;
+				console.log('You lost! You survived ' + surviveTime + ' ms.');
+				player.hp = 10;
+				startTime = Date.now();
+			}
 		}
 	}
 
-	updateEntity(player);
+	drawEntity(player);
+	ctx.fillText(player.hp + ' HP', 0, 30);
 }
 
 drawEntity = function(something){
