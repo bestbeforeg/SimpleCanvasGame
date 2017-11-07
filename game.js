@@ -2,19 +2,23 @@ let ctx = document.getElementById('canvas').getContext('2d');
 ctx.font = '30px Arial';
 
 //player
-let x = 50,
-	spdX = 30,
-	y = 40,
-	spdY = 5,
-	name = 'P';
+let player = {
+	x: 50,
+	spdX : 30,
+	y : 40,
+	spdY : 5,
+	name : 'P',
+};
 	
 
 //enemy
-let enemy_x = 150,
-	enemy_spdX = 10,
-	enemy_y = 350,
-	enemy_spdY = 15,
-	enemy_name = 'E';
+let enemy = {
+	x : 150,
+	spdX : 10,
+	y : 350,
+	spdY : 15,
+	name : 'E',
+}
 
 let	message = 'Bouncing',
 	HEIGHT = 500,
@@ -22,33 +26,23 @@ let	message = 'Bouncing',
 
 setInterval(update, 40);
 
+function update() {
+	updateEntity(player);
+	updateEntity(enemy);
+}
 
-function update(){
+function updateEntity(something){
 	//player move
-	x += spdX;
-	y += spdY;
-	ctx.fillText(name, x, y);
+	something.x += something.spdX;
+	something.y += something.spdY;
+	ctx.fillText(something.name, something.x, something.y);
 	
-	if(x < 0 || x > WIDTH){
+	if(something.x < 0 || something.x > WIDTH){
 		console.log(message);
-		spdX = -spdX;
+		something.spdX = -something.spdX;
 	}
-	if(y < 0 || y > HEIGHT){
+	if(something.y < 0 || something.y > HEIGHT){
 		console.log(message);
-		spdY = -spdY;
-	}
-
-	//enemy move
-	enemy_x += enemy_spdX;
-	enemy_y += enemy_spdY;
-	ctx.fillText(enemy_name, enemy_x, enemy_y);
-	
-	if(enemy_x < 0 || enemy_x > WIDTH){
-		console.log(message);
-		enemy_spdX = -enemy_spdX;
-	}
-	if(enemy_y < 0 || enemy_y > HEIGHT){
-		console.log(message);
-		enemy_spdY = -enemy_spdY;
+		something.spdY = -something.spdY;
 	}
 };
