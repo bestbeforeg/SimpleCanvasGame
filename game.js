@@ -20,26 +20,52 @@ let player = {
 	color : 'green',
 	atkSpd : 1,
 	attackCounter : 0,
+	pressUp : false,
+	pressDown : false,
+	pressLeft : false,
+	pressRight : false,
 },
 	enemyList = {},
 	upgradeList = {},
 	bulletList = {};
 
 document.onmousemove = function(mouse) {
-	let mouseX = mouse.clientX - document.getElementById('canvas').getBoundingClientRect().left,
-		mouseY = mouse.clientY - document.getElementById('canvas').getBoundingClientRect().top;
+	// let mouseX = mouse.clientX - document.getElementById('canvas').getBoundingClientRect().left,
+	// 	mouseY = mouse.clientY - document.getElementById('canvas').getBoundingClientRect().top;
 
-	if(mouseX < player.width/2)
-		mouseX = player.width/2;
-	if(mouseX > WIDTH - player.width/2)
-		mouseX = WIDTH - player.width/2;
-	if(mouseY < player.height/2)
-		mouseY = player.height/2;
-	if(mouseY > HEIGHT - player.height/2)
-		mouseY = HEIGHT - player.height/2;
+	// if(mouseX < player.width/2)
+	// 	mouseX = player.width/2;
+	// if(mouseX > WIDTH - player.width/2)
+	// 	mouseX = WIDTH - player.width/2;
+	// if(mouseY < player.height/2)
+	// 	mouseY = player.height/2;
+	// if(mouseY > HEIGHT - player.height/2)
+	// 	mouseY = HEIGHT - player.height/2;
 
-	player.x = mouseX;
-	player.y = mouseY;
+	// player.x = mouseX;
+	// player.y = mouseY;
+}
+
+document.onkeydown = function(event){
+	if(event.keyCode === 87)
+		player.pressUp = true;
+	if(event.keyCode === 83)
+		player.pressDown = true;
+	if(event.keyCode === 65)
+		player.pressLeft = true;
+	if(event.keyCode === 68)
+		player.pressRight = true;
+}
+
+document.onkeyup = function(event){
+	if(event.keyCode === 87)
+		player.pressUp = false;
+	if(event.keyCode === 83)
+		player.pressDown = false;
+	if(event.keyCode === 65)
+		player.pressLeft = false;
+	if(event.keyCode === 68)
+		player.pressRight = false;
 }
 
 document.onclick = function(mouse){
@@ -47,7 +73,6 @@ document.onclick = function(mouse){
 		randomlyGenerateBullet();
 		player.attackCounter = 0;
 	}
-
 }
 
 testCollision = function(entity1, entity2) {
@@ -186,6 +211,26 @@ updateEntityPosition = function(something){
 	}
 }
 
+updatePlayerPosition = function() {
+	if(player.pressUp)
+		player.y -= 10;
+	if(player.pressDown)
+		player.y += 10;
+	if(player.pressLeft)
+		player.x -= 10;
+	if(player.pressRight)
+		player.x += 10;
+
+	if(player.x < player.width/2)
+		player.x = player.width/2;
+	if(player.x > WIDTH - player.width/2)
+		player.x = WIDTH - player.width/2;
+	if(player.y < player.height/2)
+		player.y = player.height/2;
+	if(player.y > HEIGHT - player.height/2)
+		player.y = HEIGHT - player.height/2;
+}
+
 updateEntity = function(something){
 	updateEntityPosition(something);
 	drawEntity(something);
@@ -240,7 +285,7 @@ update = function() {
 			}
 		}
 
-		if (isRemove == true)
+		if(isRemove == true)
 			delete bulletList[key];
 	}	
 
@@ -250,6 +295,7 @@ update = function() {
 		startNewGame();
 	}
 
+	updatePlayerPosition();
 	drawEntity(player);
 	ctx.fillText(player.hp + ' HP', 0, 30);
 	ctx.fillText('Score: ' + score, 200, 30);
@@ -257,6 +303,7 @@ update = function() {
 
 startNewGame = function(){
 	player.hp = 10;
+	player.atkSpd = 1;
 	startTime = Date.now();
 	frameCount = 0;
 	score = 0;
