@@ -4,7 +4,8 @@ ctx.font = '30px Arial';
 
 let	HEIGHT = 500,
 	WIDTH = 500,
-	startTime = Date.now();
+	startTime = Date.now(),
+	frameCount = 0;
 
 //player
 let player = {
@@ -77,19 +78,21 @@ enemy = function(id, x, spdX, y, spdY, width, height){
 
 update = function() {
 	ctx.clearRect(0, 0, WIDTH, HEIGHT);
+	frameCount++;
+	if(frameCount % 100 == 0)
+		randomlyGenerateEnemy();
 	
 	for(let key in enemyList){
 		updateEntity(enemyList[key]);
 		let isColiding = testCollision(player, enemyList[key]);
-		if(isColiding){
+		if(isColiding)
 			player.hp--;
-			if(player.hp <= 0){
-				let surviveTime = Date.now() - startTime;
-				console.log('You lost! You survived ' + surviveTime + ' ms.');
-				player.hp = 10;
-				startTime = Date.now();
-			}
-		}
+	}
+
+	if(player.hp <= 0){
+		let surviveTime = Date.now() - startTime;
+		console.log('You lost! You survived ' + surviveTime + ' ms.');
+		startNewGame();
 	}
 
 	drawEntity(player);
@@ -134,8 +137,16 @@ randomlyGenerateEnemy = function(){
 	enemy(id, x, spdX, y, spdY, width, height);
 }
 
-randomlyGenerateEnemy();
-randomlyGenerateEnemy();
-randomlyGenerateEnemy();
+startNewGame = function(){
+	player.hp = 10;
+	startTime = Date.now();
+	frameCount = 0;
+	enemyList = {};
+	randomlyGenerateEnemy();
+	randomlyGenerateEnemy();
+	randomlyGenerateEnemy();
+}
+
+startNewGame();
 
 setInterval(update, 40);
