@@ -121,8 +121,21 @@ updateEntity = function(something){
 };
 
 let enemyList = {};
-enemy('E1', 150, 10, 350, 15, 30, 30);
-enemy('E2', 250, 10, 350, -15, 20, 20);
-enemy('E3', 11, 10, 350, 8, 40, 10);
+
+randomlyGenerateEnemy = function(){
+	let x = Math.random()*WIDTH,
+		y = Math.random()*HEIGHT,
+		width = 10 + Math.random()*30,
+		height = 10 + Math.random()*30,
+		spdX = 5 + Math.random()*5,
+		spdY = 5 + Math.random()*5,
+		id = Math.random();
+
+	enemy(id, x, spdX, y, spdY, width, height);
+}
+
+randomlyGenerateEnemy();
+randomlyGenerateEnemy();
+randomlyGenerateEnemy();
 
 setInterval(update, 40);
