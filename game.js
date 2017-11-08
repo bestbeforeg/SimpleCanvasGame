@@ -14,6 +14,9 @@ let player = {
 	spdY : 5,
 	name : 'P',
 	hp : 10,
+	width : 20,
+	height : 20,
+	color : 'green',
 };
 
 document.onmousemove = function(mouse) {
@@ -24,18 +27,33 @@ document.onmousemove = function(mouse) {
 	player.y = mouseY;
 }
 
-getDistanceBetweenEntities = function(entity1,entity2){
-	let distanceX = entity1.x - entity2.x;
-	let distanceY = entity1.y - entity2.y;
-	return Math.sqrt(distanceX*distanceX + distanceY*distanceY);
-}
 
 testCollision = function(entity1, entity2) {
-	let colision = getDistanceBetweenEntities(entity1, entity2);
-	return colision < 30;
+	let rect1 = {
+		x : entity1.x - entity1.width/2,
+		y : entity1.y - entity1.height/2,
+		width : entity1.width,
+		height : entity1.height,
+	};
+	let rect2 = {
+		x : entity2.x - entity2.width/2,
+		y : entity2.y - entity2.height/2,
+		width : entity2.width,
+		height : entity2.height,
+	};
+
+	return testCollisionRect(rect1, rect2);
 }
 
-enemy = function(id, x, spdX, y, spdY){
+
+testCollisionRect = function(rect1,rect2){
+        return rect1.x <= rect2.x+rect2.width
+                && rect2.x <= rect1.x+rect1.width
+                && rect1.y <= rect2.y + rect2.height
+                && rect2.y <= rect1.y + rect1.height;
+}
+
+enemy = function(id, x, spdX, y, spdY, width, height){
 	let enemy = {
 		x : x,
 		spdX : spdX,
@@ -43,6 +61,9 @@ enemy = function(id, x, spdX, y, spdY){
 		spdY : spdY,
 		name : 'E',
 		id : id,
+		width : width,
+		height : height,
+		color : 'red',
 	}
 	enemyList[id] = enemy;
 }
@@ -69,7 +90,10 @@ update = function() {
 }
 
 drawEntity = function(something){
-	ctx.fillText(something.name, something.x, something.y);
+	ctx.save();
+	ctx.fillStyle = something.color;
+	ctx.fillRect(something.x - something.width/2, something.y - something.height/2, something.width, something.height);
+	ctx.restore();
 };
 
 updateEntityPosition = function(something){
@@ -90,8 +114,8 @@ updateEntity = function(something){
 };
 
 let enemyList = {};
-enemy('E1', 150, 10, 350, 15);
-enemy('E2', 250, 10, 350, -15);
-enemy('E3', 11, 10, 350, 8);
+enemy('E1', 150, 10, 350, 15, 30, 30);
+enemy('E2', 250, 10, 350, -15, 20, 20);
+enemy('E3', 11, 10, 350, 8, 40, 10);
 
 setInterval(update, 40);
