@@ -6,6 +6,7 @@ let	HEIGHT = 500,
 	WIDTH = 500,
 	startTime = Date.now(),
 	frameCount = 0;
+	score = 0;
 
 //player
 let player = {
@@ -79,6 +80,7 @@ enemy = function(id, x, spdX, y, spdY, width, height){
 update = function() {
 	ctx.clearRect(0, 0, WIDTH, HEIGHT);
 	frameCount++;
+	score++;
 	if(frameCount % 100 == 0)
 		randomlyGenerateEnemy();
 	
@@ -97,6 +99,7 @@ update = function() {
 
 	drawEntity(player);
 	ctx.fillText(player.hp + ' HP', 0, 30);
+	ctx.fillText('Score: ' + score, 200, 30);
 }
 
 drawEntity = function(something){
@@ -141,6 +144,7 @@ startNewGame = function(){
 	player.hp = 10;
 	startTime = Date.now();
 	frameCount = 0;
+	score = 0;
 	enemyList = {};
 	randomlyGenerateEnemy();
 	randomlyGenerateEnemy();
