@@ -19,6 +19,7 @@ let player = {
 	height : 20,
 	color : 'green',
 	atkSpd : 1,
+	attackCounter : 0,
 },
 	enemyList = {},
 	upgradeList = {},
@@ -39,6 +40,14 @@ document.onmousemove = function(mouse) {
 
 	player.x = mouseX;
 	player.y = mouseY;
+}
+
+document.onclick = function(mouse){
+	if(player.attackCounter > 25){
+		randomlyGenerateBullet();
+		player.attackCounter = 0;
+	}
+
 }
 
 testCollision = function(entity1, entity2) {
@@ -186,6 +195,7 @@ update = function() {
 	ctx.clearRect(0, 0, WIDTH, HEIGHT);
 	frameCount++;
 	score++;
+	player.attackCounter+=player.atkSpd;
 
 	if(frameCount % 100 == 0)
 		randomlyGenerateEnemy();
@@ -212,9 +222,6 @@ update = function() {
 			delete upgradeList[key];
 		}
 	}
-
-	if(frameCount % Math.round(25/player.atkSpd) == 0)
-		randomlyGenerateBullet();
 
 	for(let key in bulletList){
 		updateEntity(bulletList[key]);
