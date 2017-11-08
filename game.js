@@ -103,6 +103,7 @@ bullet = function(id, x, spdX, y, spdY, width, height){
 		width : width,
 		height : height,
 		color : 'black',
+		timer : 0,
 	}
 	bulletList[id] = bullet;
 }
@@ -200,22 +201,24 @@ update = function() {
 
 	for(let key in bulletList){
 		updateEntity(bulletList[key]);
-		// let isColiding = testCollision(player, upgradeList[key]);
-		// if(isColiding){
-		// 	score+=1000;
-		// 	delete upgradeList[key];
-		// }
-	}
 
-	// for(let key in bulletList){
-	// 	updateEntity(bulletList[key]);
-	// 	let isColiding = testCollision(player, upgradeList[key]);
-	// 	if(isColiding){
-	// 		score+=1000;
-	// 		delete upgradeList[key];
-	// 	}
-	// }
-	
+		let isRemove = false;
+		bulletList[key].timer++;
+
+		if(bulletList[key].timer > 100)
+			isRemove = true;
+		
+		for(let key2 in enemyList){
+			let isColiding = testCollision(bulletList[key], enemyList[key2]);
+			if(isColiding){
+				isRemove = true;
+				delete enemyList[key2]
+			}
+		}
+
+		if (isRemove == true)
+			delete bulletList[key];
+	}	
 
 	if(player.hp <= 0){
 		let surviveTime = Date.now() - startTime;
@@ -235,6 +238,7 @@ startNewGame = function(){
 	score = 0;
 	enemyList = {};
 	upgradeList = {};
+	bulletList = {};
 	randomlyGenerateEnemy();
 	randomlyGenerateEnemy();
 	randomlyGenerateEnemy();
