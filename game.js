@@ -18,6 +18,7 @@ let player = {
 	width : 20,
 	height : 20,
 	color : 'green',
+	atkSpd : 1,
 },
 	enemyList = {},
 	upgradeList = {},
@@ -134,11 +135,11 @@ randomlyGenerateUpgrade = function(){
 
 	if(Math.random() < 0.5){
 		color = 'orange';
-		category = 'low'; 
+		category = 'score'; 
 	}
 	else{
 		color = 'purple';
-		category = 'high'; 
+		category = 'attack'; 
 	}
 
 	upgrade(id, x, spdX, y, spdY, width, height, color, category);
@@ -203,15 +204,16 @@ update = function() {
 		updateEntity(upgradeList[key]);
 		let isColiding = testCollision(player, upgradeList[key]);
 		if(isColiding){
-			if (upgradeList[key].category === 'low')
+			if (upgradeList[key].category === 'score')
 				score+=1000;
 			else
-				score+=10000;
+				player.atkSpd += 3;
+
 			delete upgradeList[key];
 		}
 	}
 
-	if(frameCount % 25 == 0)
+	if(frameCount % Math.round(25/player.atkSpd) == 0)
 		randomlyGenerateBullet();
 
 	for(let key in bulletList){
