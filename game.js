@@ -79,7 +79,7 @@ enemy = function(id, x, spdX, y, spdY, width, height){
 	enemyList[id] = enemy;
 }
 
-upgrade = function(id, x, spdX, y, spdY, width, height){
+upgrade = function(id, x, spdX, y, spdY, width, height, color, category){
 	let upgrade = {
 		x : x,
 		spdX : spdX,
@@ -88,7 +88,8 @@ upgrade = function(id, x, spdX, y, spdY, width, height){
 		id : id,
 		width : width,
 		height : height,
-		color : 'orange',
+		color : color,
+		category : category,
 	}
 	upgradeList[id] = upgrade;
 }
@@ -127,9 +128,20 @@ randomlyGenerateUpgrade = function(){
 		height = 10,
 		spdX = 0,
 		spdY = 0,
-		id = Math.random();
+		id = Math.random(),
+		color,
+		category;
 
-	upgrade(id, x, spdX, y, spdY, width, height);
+	if(Math.random() < 0.5){
+		color = 'orange';
+		category = 'low'; 
+	}
+	else{
+		color = 'purple';
+		category = 'high'; 
+	}
+
+	upgrade(id, x, spdX, y, spdY, width, height, color, category);
 }
 
 randomlyGenerateBullet = function(){
@@ -191,7 +203,10 @@ update = function() {
 		updateEntity(upgradeList[key]);
 		let isColiding = testCollision(player, upgradeList[key]);
 		if(isColiding){
-			score+=1000;
+			if (upgradeList[key].category === 'low')
+				score+=1000;
+			else
+				score+=10000;
 			delete upgradeList[key];
 		}
 	}
