@@ -1,11 +1,10 @@
 let ctx = document.getElementById('canvas').getContext('2d');
 ctx.font = '30px Arial';
 
-
 let	HEIGHT = 500,
 	WIDTH = 500,
 	startTime = Date.now(),
-	frameCount = 0;
+	frameCount = 0,
 	score = 0;
 
 //player
@@ -77,19 +76,47 @@ enemy = function(id, x, spdX, y, spdY, width, height){
 	enemyList[id] = enemy;
 }
 
+addUpgrade = function(id, x, spdX, y, spdY, width, height){
+	let update = {
+		x : x,
+		spdX : spdX,
+		y : y,
+		spdY : spdY,
+		id : id,
+		width : width,
+		height : height,
+		color : 'orange',
+	}
+	upgradeList[id] = update;
+}
+
 update = function() {
 	ctx.clearRect(0, 0, WIDTH, HEIGHT);
 	frameCount++;
 	score++;
+
 	if(frameCount % 100 == 0)
 		randomlyGenerateEnemy();
-	
+
 	for(let key in enemyList){
 		updateEntity(enemyList[key]);
 		let isColiding = testCollision(player, enemyList[key]);
 		if(isColiding)
 			player.hp--;
 	}
+
+	if(frameCount % 75 == 0)
+		randomlyGenerateUpgrade();
+
+	for(let key in upgradeList){
+		updateEntity(upgradeList[key]);
+		let isColiding = testCollision(player, upgradeList[key]);
+		if(isColiding){
+			score+=1000;
+			delete upgradeList[key];
+		}
+	}
+	
 
 	if(player.hp <= 0){
 		let surviveTime = Date.now() - startTime;
@@ -105,7 +132,7 @@ update = function() {
 drawEntity = function(something){
 	ctx.save();
 	ctx.fillStyle = something.color;
-	ctx.fillRect(something.x - something.width/2, something.y - something.height/2, something.width, something.height);
+	ctx.fillRect(something.x-something.width/2,something.y-something.height/2,something.width,something.height);
 	ctx.restore();
 };
 
@@ -126,8 +153,6 @@ updateEntity = function(something){
 	drawEntity(something);
 };
 
-let enemyList = {};
-
 randomlyGenerateEnemy = function(){
 	let x = Math.random()*WIDTH,
 		y = Math.random()*HEIGHT,
@@ -140,16 +165,32 @@ randomlyGenerateEnemy = function(){
 	enemy(id, x, spdX, y, spdY, width, height);
 }
 
+randomlyGenerateUpgrade = function(){
+	let x = Math.random()*WIDTH,
+		y = Math.random()*HEIGHT,
+		width = 10,
+		height = 10,
+		spdX = 0,
+		spdY = 0,
+		id = Math.random();
+
+	addUpgrade(id, x, spdX, y, spdY, width, height);
+}
+
 startNewGame = function(){
 	player.hp = 10;
 	startTime = Date.now();
 	frameCount = 0;
 	score = 0;
 	enemyList = {};
+	upgradeList = {};
 	randomlyGenerateEnemy();
 	randomlyGenerateEnemy();
 	randomlyGenerateEnemy();
 }
+
+let enemyList = {},
+	upgradeList = {};
 
 startNewGame();
 
