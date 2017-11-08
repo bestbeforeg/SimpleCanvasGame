@@ -1,8 +1,8 @@
 let ctx = document.getElementById('canvas').getContext('2d');
 ctx.font = '30px Arial';
 
-let	message = 'Bouncing',
-	HEIGHT = 500,
+
+let	HEIGHT = 500,
 	WIDTH = 500,
 	startTime = Date.now();
 
@@ -20,13 +20,21 @@ let player = {
 };
 
 document.onmousemove = function(mouse) {
-	let mouseX = mouse.clientX,
-		mouseY = mouse.clientY;
+	let mouseX = mouse.clientX - document.getElementById('canvas').getBoundingClientRect().left,
+		mouseY = mouse.clientY - document.getElementById('canvas').getBoundingClientRect().top;
+
+	if(mouseX < player.width/2)
+		mouseX = player.width/2;
+	if(mouseX > WIDTH - player.width/2)
+		mouseX = WIDTH - player.width/2;
+	if(mouseY < player.height/2)
+		mouseY = player.height/2;
+	if(mouseY > HEIGHT - player.height/2)
+		mouseY = HEIGHT - player.height/2;
 
 	player.x = mouseX;
 	player.y = mouseY;
 }
-
 
 testCollision = function(entity1, entity2) {
 	let rect1 = {
@@ -44,7 +52,6 @@ testCollision = function(entity1, entity2) {
 
 	return testCollisionRect(rect1, rect2);
 }
-
 
 testCollisionRect = function(rect1,rect2){
         return rect1.x <= rect2.x+rect2.width
