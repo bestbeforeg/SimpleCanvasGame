@@ -10,72 +10,104 @@ let	HEIGHT = 500,
 //entities
 let player;
 createPlayer = function(){
-	player = {
-		type : 'player',
-		x: 50,
-		spdX : 30,
-		y : 40,
-		spdY : 5,
-		name : 'P',
-		hp : 10,
-		width : 20,
-		height : 20,
-		color : 'green',
-		pressUp : false,
-		pressDown : false,
-		pressLeft : false,
-		pressRight : false,
-		aimAngle : 0,
-		atkSpd : 1,
-		attackCounter : 0,
-	}
+	let self = Entity('player', 'Player1', 50, 30, 40, 5, 20, 20, 'green');	
+	self.hp = 10;
+	self.pressUp = false;
+	self.pressDown = false;
+	self.pressLeft = false;
+	self.pressRight = false;
+	self.aimAngle = 0;
+	self.atkSpd = 1;
+	self.attackCounter = 0;
+
+	player = self;
 };
 
 let	enemyList = {},
 	upgradeList = {},
 	bulletList = {};
 
-testCollision = function(entity1, entity2) {
-	let rect1 = {
-		x : entity1.x - entity1.width/2,
-		y : entity1.y - entity1.height/2,
-		width : entity1.width,
-		height : entity1.height,
-	};
-	let rect2 = {
-		x : entity2.x - entity2.width/2,
-		y : entity2.y - entity2.height/2,
-		width : entity2.width,
-		height : entity2.height,
-	};
-
-	return testCollisionRect(rect1, rect2);
-}
-
-testCollisionRect = function(rect1,rect2){
-        return rect1.x <= rect2.x+rect2.width
-                && rect2.x <= rect1.x+rect1.width
-                && rect1.y <= rect2.y + rect2.height
-                && rect2.y <= rect1.y + rect1.height;
-}
-
-enemy = function(id, x, spdX, y, spdY, width, height){
-	let enemy = {
-		type : 'enemy',
+Entity = function(type, id, x, spdX, y, spdY, width, height, color) {
+	let self = {
+		type : type,
+		id : id,
 		x : x,
 		spdX : spdX,
 		y : y,
 		spdY : spdY,
-		name : 'E',
-		id : id,
 		width : width,
 		height : height,
-		color : 'red',
-		aimAngle : 0,
-		atkSpd : 1,
-		attackCounter : 0,
+		color : color,
+	};
+	self.update = function(){
+		self.updatePosition();
+		self.draw();
 	}
-	enemyList[id] = enemy;
+	self.updatePosition = function(){
+		if(self.type === 'player'){
+			if(self.pressUp)
+				self.y -= 10;
+			if(self.pressDown)
+				self.y += 10;
+			if(self.pressLeft)
+				self.x -= 10;
+			if(self.pressRight)
+				self.x += 10;
+
+			if(self.x < self.width/2)
+				self.x = self.width/2;
+			if(self.x > WIDTH - self.width/2)
+				self.x = WIDTH - self.width/2;
+			if(self.y < self.height/2)
+				self.y = self.height/2;
+			if(self.y > HEIGHT - self.height/2)
+				self.y = HEIGHT - self.height/2;		
+		}
+		else{
+			self.x += self.spdX;
+			self.y += self.spdY;
+			
+			if(self.x < 0 || self.x > WIDTH){
+				self.spdX = -self.spdX;
+			}
+			if(self.y < 0 || self.y > HEIGHT){
+				self.spdY = -self.spdY;
+			}
+		}
+	}
+	self.draw = function(){
+		ctx.save();
+		ctx.fillStyle = self.color;
+		ctx.fillRect(self.x-self.width/2,self.y-self.height/2,self.width,self.height);
+		ctx.restore();
+	};
+	self.testCollision = function(entity) {
+		let rect1 = {
+			x : self.x - self.width/2,
+			y : self.y - self.height/2,
+			width : self.width,
+			height : self.height,
+		};
+		let rect2 = {
+			x : entity.x - entity.width/2,
+			y : entity.y - entity.height/2,
+			width : entity.width,
+			height : entity.height,
+		};
+
+		return testCollisionRect(rect1, rect2);
+	}
+
+	return self;
+}
+
+enemy = function(id, x, spdX, y, spdY, width, height){
+	let self = Entity('enemy', id, x, spdX, y, spdY, width, height, 'red');
+	self.aimAngle = 0;
+	self.atkSpd = 1;
+	self.attackCounter = 0;
+
+	enemyList[id] = self;
 }
 
 randomlyGenerateEnemy = function(){
@@ -91,19 +123,10 @@ randomlyGenerateEnemy = function(){
 }
 
 upgrade = function(id, x, spdX, y, spdY, width, height, color, category){
-	let upgrade = {
-		type : 'upgrade',
-		x : x,
-		spdX : spdX,
-		y : y,
-		spdY : spdY,
-		id : id,
-		width : width,
-		height : height,
-		color : color,
-		category : category,
-	}
-	upgradeList[id] = upgrade;
+	let self = Entity('upgrade', id, x, spdX, y, spdY, width, height, color);
+	self.category = category;
+
+	upgradeList[id] = self;
 }
 
 randomlyGenerateUpgrade = function(){
@@ -130,19 +153,10 @@ randomlyGenerateUpgrade = function(){
 }
 
 bullet = function(id, x, spdX, y, spdY, width, height){
-	let bullet = {
-		type : 'bullet',
-		x : x,
-		spdX : spdX,
-		y : y,
-		spdY : spdY,
-		id : id,
-		width : width,
-		height : height,
-		color : 'black',
-		timer : 0,
-	}
-	bulletList[id] = bullet;
+	let self = Entity('bullet', id, x, spdX, y, spdY, width, height, 'back');	
+	self.timer = 0;
+	
+	bulletList[id] = self;
 }
 
 generateBullet = function(actor, aimOverwrite){
@@ -162,50 +176,12 @@ generateBullet = function(actor, aimOverwrite){
 	bullet(id, x, spdX, y, spdY, width, height);
 }
 
-updateEntity = function(entity){
-	updateEntityPosition(entity);
-	drawEntity(entity);
-};
-
-updateEntityPosition = function(entity){
-	if(entity.type === 'player'){
-		if(player.pressUp)
-			player.y -= 10;
-		if(player.pressDown)
-			player.y += 10;
-		if(player.pressLeft)
-			player.x -= 10;
-		if(player.pressRight)
-			player.x += 10;
-
-		if(player.x < player.width/2)
-			player.x = player.width/2;
-		if(player.x > WIDTH - player.width/2)
-			player.x = WIDTH - player.width/2;
-		if(player.y < player.height/2)
-			player.y = player.height/2;
-		if(player.y > HEIGHT - player.height/2)
-			player.y = HEIGHT - player.height/2;		
-	}
-	else{
-		entity.x += entity.spdX;
-		entity.y += entity.spdY;
-		
-		if(entity.x < 0 || entity.x > WIDTH){
-			entity.spdX = -entity.spdX;
-		}
-		if(entity.y < 0 || entity.y > HEIGHT){
-			entity.spdY = -entity.spdY;
-		}
-	}
+testCollisionRect = function(rect1,rect2){
+        return rect1.x <= rect2.x+rect2.width
+                && rect2.x <= rect1.x+rect1.width
+                && rect1.y <= rect2.y + rect2.height
+                && rect2.y <= rect1.y + rect1.height;
 }
-
-drawEntity = function(entity){
-	ctx.save();
-	ctx.fillStyle = entity.color;
-	ctx.fillRect(entity.x-entity.width/2,entity.y-entity.height/2,entity.width,entity.height);
-	ctx.restore();
-};
 
 document.onclick = function(mouse){
 	performAttack(player);
@@ -283,8 +259,8 @@ update = function() {
 	player.attackCounter+=player.atkSpd;
 	
 	for(let key in upgradeList){
-		updateEntity(upgradeList[key]);
-		let isColiding = testCollision(player, upgradeList[key]);
+		upgradeList[key].update();
+		let isColiding = player.testCollision(upgradeList[key]);
 		if(isColiding){
 			if (upgradeList[key].category === 'score')
 				score+=1000;
@@ -296,7 +272,7 @@ update = function() {
 	}
 
 	for(let key in bulletList){
-		updateEntity(bulletList[key]);
+		bulletList[key].update();
 
 		let toRemove = false;
 		bulletList[key].timer++;
@@ -304,7 +280,7 @@ update = function() {
 			toRemove = true;
 		
 		for(let key2 in enemyList){
-			let isColiding = testCollision(bulletList[key], enemyList[key2]);
+			let isColiding = bulletList[key].testCollision(enemyList[key2]);
 			if(isColiding){
 				toRemove = true;
 				delete enemyList[key2];
@@ -317,8 +293,8 @@ update = function() {
 	}
 
 	for(let key in enemyList){
-		updateEntity(enemyList[key]);
-		let isColiding = testCollision(player, enemyList[key]);
+		enemyList[key].update();
+		let isColiding = player.testCollision(enemyList[key]);
 		if(isColiding)
 			player.hp--;
 	}
@@ -329,7 +305,7 @@ update = function() {
 		startNewGame();
 	}
 
-	updateEntity(player);
+	player.update();
 	ctx.fillText(player.hp + ' HP', 0, 30);
 	ctx.fillText('Score: ' + score, 200, 30);
 }
