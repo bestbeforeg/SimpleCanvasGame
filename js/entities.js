@@ -1,6 +1,6 @@
 let player;
 Player = function(){
-	let self = Actor('player', 'Player1', 50, 30, 40, 5, 30, 45, Img.player, 10, 1);
+	let self = Actor('player', 'Player1', 50, 30, 40, 5, 50, 70, Img.player, 10, 1);
 
 	self.updatePosition = function(){
 		if(self.pressUp)
@@ -14,12 +14,12 @@ Player = function(){
 
 		if(self.x < self.width/2)
 			self.x = self.width/2;
-		if(self.x > WIDTH - self.width/2)
-			self.x = WIDTH - self.width/2;
+		if(self.x > currentMap.width - self.width/2)
+			self.x = currentMap.width - self.width/2;
 		if(self.y < self.height/2)
 			self.y = self.height/2;
-		if(self.y > HEIGHT - self.height/2)
-			self.y = HEIGHT - self.height/2;
+		if(self.y > currentMap.height - self.height/2)
+			self.y = currentMap.height - self.height/2;
 	}
 
 	self.pressUp = false;
@@ -63,10 +63,10 @@ Entity = function(id, x, spdX, y, spdY, width, height, img) {
 		self.x += self.spdX;
 		self.y += self.spdY;
 		
-		if(self.x < 0 || self.x > WIDTH){
+		if(self.x < 0 || self.x > currentMap.width){
 			self.spdX = -self.spdX;
 		}
-		if(self.y < 0 || self.y > HEIGHT){
+		if(self.y < 0 || self.y > currentMap.height){
 			self.spdY = -self.spdY;
 		}
 	}
@@ -156,10 +156,10 @@ enemy = function(id, x, spdX, y, spdY, width, height){
 }
 
 randomlyGenerateEnemy = function(){
-	let x = Math.random()*WIDTH,
-		y = Math.random()*HEIGHT,
-		width = 50,
-		height = 50,
+	let x = Math.random()*currentMap.width,
+		y = Math.random()*currentMap.height,
+		width = 64,
+		height = 64,
 		spdX = 5 + Math.random()*5,
 		spdY = 5 + Math.random()*5,
 		id = Math.random();
@@ -189,10 +189,10 @@ upgrade = function(id, x, spdX, y, spdY, width, height, img, category){
 }
 
 randomlyGenerateUpgrade = function(){
-	let x = Math.random()*WIDTH,
-		y = Math.random()*HEIGHT,
-		width = 15,
-		height = 15,
+	let x = Math.random()*currentMap.width,
+		y = Math.random()*currentMap.height,
+		width = 30,
+		height = 30,
 		spdX = 0,
 		spdY = 0,
 		id = Math.random(),
@@ -243,8 +243,8 @@ bullet = function(id, x, spdX, y, spdY, width, height){
 generateBullet = function(actor, aimOverwrite){
 	let x = actor.x,
 		y = actor.y,
-		width = 12,
-		height = 12,
+		width = 20,
+		height = 20,
 		angle = actor.aimAngle;
 
 	if(aimOverwrite !== undefined)

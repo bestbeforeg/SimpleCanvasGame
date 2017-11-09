@@ -18,8 +18,6 @@ Img.upgrade2 = new Image();
 Img.upgrade2.src = './img/upgrade2.png';
 Img.bullet = new Image();
 Img.bullet.src = './img/bullet.png';
-Img.map = new Image();
-Img.map.src = './img/map.png';
 
 testCollisionRect = function(rect1,rect2){
         return rect1.x <= rect2.x+rect2.width
@@ -63,15 +61,15 @@ document.onmousemove = function(mouse) {
 	let mouseX = mouse.clientX - document.getElementById('ctx').getBoundingClientRect().left;
 	let mouseY = mouse.clientY - document.getElementById('ctx').getBoundingClientRect().top;
 	
-	mouseX -= player.x;
-	mouseY -= player.y;
+	mouseX -= WIDTH/2;
+	mouseY -= HEIGHT/2;
 	
 	player.aimAngle = Math.atan2(mouseY,mouseX) / Math.PI * 180;
 }
 
 update = function() {
 	ctx.clearRect(0, 0, WIDTH, HEIGHT);
-	drawMap();
+	currentMap.draw();
 	frameCount++;
 	score++;
 
@@ -112,12 +110,23 @@ startNewGame = function(){
 	randomlyGenerateEnemy();
 }
 
-drawMap = function(){
-	let x = WIDTH/2 - player.x;
-	let y = WIDTH/2 - player.y;
-	ctx.drawImage(Img.map, 0, 0, Img.map.width, Img.map.height, x, y, Img.map.width*1.5, Img.map.height*1.5);
+maps = function(id, imgSrc, width, height){
+	let self = {
+		id : id,
+		img : new Image(),
+		width : width,
+		height : height,
+	}
+	self.img.src = imgSrc;
+	self.draw = function(){
+		let x = WIDTH/2 - player.x;
+		let y = WIDTH/2 - player.y;
+		ctx.drawImage(self.img, 0, 0, self.img.width, self.img.height, x, y, self.img.width*2, self.img.height*2);
+	}
+	return self;
 }
 
+let currentMap = maps('field', './img/map.png', 1280, 960);
 player = Player();
 startNewGame();
 
