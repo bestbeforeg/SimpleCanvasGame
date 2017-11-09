@@ -36,6 +36,16 @@ Player = function(){
 	self.pressDown = false;
 	self.pressLeft = false;
 	self.pressRight = false;
+
+	let super_update = self.update;
+	self.update = function(){
+		super_update();
+		if(self.hp <= 0){
+			let surviveTime = Date.now() - startTime;
+			console.log('You lost! You survived ' + surviveTime + ' ms.');
+			startNewGame();
+		}
+	}
 	
 	return self;
 };
@@ -134,6 +144,16 @@ Actor = function(type, id, x, spdX, y, spdY, width, height, color, hp, atkSpd){
 enemy = function(id, x, spdX, y, spdY, width, height){
 	let self = Actor('enemy', id, x, spdX, y, spdY, width, height, 'red', 10, 1);
 
+	let super_update = self.update;
+	self.update = function(){
+		super_update();
+		self.performAttack();
+
+		let isColiding = player.testCollision(self);
+		if(isColiding)
+			player.hp--;
+	}
+
 	enemyList[id] = self;
 }
 
@@ -152,6 +172,20 @@ randomlyGenerateEnemy = function(){
 upgrade = function(id, x, spdX, y, spdY, width, height, color, category){
 	let self = Entity(id, x, spdX, y, spdY, width, height, color);
 	self.category = category;
+
+	let super_update = self.update;
+	self.update = function(){
+		super_update();
+		let isColiding = player.testCollision(self);
+		if(isColiding){
+			if (self.category === 'score')
+				score+=1000;
+			else
+				player.atkSpd += 3;
+
+			delete upgradeList[self.id];
+		}
+	}
 
 	upgradeList[id] = self;
 }
@@ -182,6 +216,28 @@ randomlyGenerateUpgrade = function(){
 bullet = function(id, x, spdX, y, spdY, width, height){
 	let self = Entity(id, x, spdX, y, spdY, width, height, 'back');	
 	self.timer = 0;
+
+	let super_update = self.update;
+	self.update = function(){
+		super_update();
+		
+		let toRemove = false;
+		self.timer++;
+		if(self.timer > 75)
+			toRemove = true;
+		
+		for(let key2 in enemyList){
+			// let isColiding = bulletList[key].testCollision(enemyList[key2]);
+			// if(isColiding){
+			// 	toRemove = true;
+			// 	delete enemyList[key2];
+			// 	break;
+			// }
+		}
+
+		if(toRemove)
+			delete bulletList[self.id];
+	}
 	
 	bulletList[id] = self;
 }
@@ -264,54 +320,18 @@ update = function() {
 	
 	for(let key in upgradeList){
 		upgradeList[key].update();
-		let isColiding = player.testCollision(upgradeList[key]);
-		if(isColiding){
-			if (upgradeList[key].category === 'score')
-				score+=1000;
-			else
-				player.atkSpd += 3;
-
-			delete upgradeList[key];
-		}
 	}
 
 	for(let key in bulletList){
 		bulletList[key].update();
-
-		let toRemove = false;
-		bulletList[key].timer++;
-		if(bulletList[key].timer > 75)
-			toRemove = true;
-		
-		for(let key2 in enemyList){
-			// let isColiding = bulletList[key].testCollision(enemyList[key2]);
-			// if(isColiding){
-			// 	toRemove = true;
-			// 	delete enemyList[key2];
-			// 	break;
-			// }
-		}
-
-		if(toRemove)
-			delete bulletList[key];
 	}
 
 	for(let key in enemyList){
 		enemyList[key].update();
-		enemyList[key].performAttack();
-
-		let isColiding = player.testCollision(enemyList[key]);
-		if(isColiding)
-			player.hp--;
 	}
 
-	if(player.hp <= 0){
-		let surviveTime = Date.now() - startTime;
-		console.log('You lost! You survived ' + surviveTime + ' ms.');
-		startNewGame();
-	}
-	
 	player.update();
+
 	ctx.fillText(player.hp + ' HP', 0, 30);
 	ctx.fillText('Score: ' + score, 200, 30);
 }
