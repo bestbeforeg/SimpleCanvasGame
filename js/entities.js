@@ -236,8 +236,8 @@ bullet = function(id, x, spdX, y, spdY, width, height){
 generateBullet = function(actor, aimOverwrite){
 	let x = actor.x,
 		y = actor.y,
-		width = 10,
-		height = 10,
+		width = 12,
+		height = 12,
 		angle = actor.aimAngle;
 
 	if(aimOverwrite !== undefined)

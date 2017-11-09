@@ -18,6 +18,8 @@ Img.upgrade2 = new Image();
 Img.upgrade2.src = './img/upgrade2.png';
 Img.bullet = new Image();
 Img.bullet.src = './img/bullet.png';
+Img.map = new Image();
+Img.map.src = './img/map.png';
 
 testCollisionRect = function(rect1,rect2){
         return rect1.x <= rect2.x+rect2.width
@@ -69,9 +71,10 @@ document.onmousemove = function(mouse) {
 
 update = function() {
 	ctx.clearRect(0, 0, WIDTH, HEIGHT);
+	drawMap();
 	frameCount++;
 	score++;
-	
+
 	if(frameCount % 100 == 0)
 		randomlyGenerateEnemy();
 
@@ -107,6 +110,12 @@ startNewGame = function(){
 	randomlyGenerateEnemy();
 	randomlyGenerateEnemy();
 	randomlyGenerateEnemy();
+}
+
+drawMap = function(){
+	let x = WIDTH/2 - player.x;
+	let y = WIDTH/2 - player.y;
+	ctx.drawImage(Img.map, 0, 0, Img.map.width, Img.map.height, x, y, Img.map.width*1.5, Img.map.height*1.5);
 }
 
 player = Player();
