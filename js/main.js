@@ -7,6 +7,18 @@ let	HEIGHT = 500,
 	frameCount = 0,
 	score = 0;
 
+let Img = {};
+Img.player = new Image();
+Img.player.src = './img/player.png';
+Img.enemy = new Image();
+Img.enemy.src = './img/enemy.png';
+Img.upgrade1 = new Image();
+Img.upgrade1.src = './img/upgrade1.png';
+Img.upgrade2 = new Image();
+Img.upgrade2.src = './img/upgrade2.png';
+Img.bullet = new Image();
+Img.bullet.src = './img/bullet.png';
+
 testCollisionRect = function(rect1,rect2){
         return rect1.x <= rect2.x+rect2.width
                 && rect2.x <= rect1.x+rect1.width

@@ -1,6 +1,6 @@
 let player;
 Player = function(){
-	let self = Actor('player', 'Player1', 50, 30, 40, 5, 20, 20, 'green', 10, 1);
+	let self = Actor('player', 'Player1', 50, 30, 40, 5, 20, 20, Img.player, 10, 1);
 
 	self.updatePosition = function(){
 		if(self.pressUp)
@@ -44,7 +44,7 @@ let	enemyList = {},
 	upgradeList = {},
 	bulletList = {};
 
-Entity = function(id, x, spdX, y, spdY, width, height, color) {
+Entity = function(id, x, spdX, y, spdY, width, height, img) {
 	let self = {
 		id : id,
 		x : x,
@@ -53,7 +53,7 @@ Entity = function(id, x, spdX, y, spdY, width, height, color) {
 		spdY : spdY,
 		width : width,
 		height : height,
-		color : color,
+		img : img,
 	};
 	self.update = function(){
 		self.updatePosition();
@@ -72,8 +72,9 @@ Entity = function(id, x, spdX, y, spdY, width, height, color) {
 	}
 	self.draw = function(){
 		ctx.save();
-		ctx.fillStyle = self.color;
-		ctx.fillRect(self.x-self.width/2,self.y-self.height/2,self.width,self.height);
+		let x = self.x-self.width/2;
+		let y = self.y-self.height/2;
+		ctx.drawImage(self.img, x, y);
 		ctx.restore();
 	};
 	self.testCollision = function(entity) {
@@ -96,8 +97,8 @@ Entity = function(id, x, spdX, y, spdY, width, height, color) {
 	return self;
 }
 
-Actor = function(type, id, x, spdX, y, spdY, width, height, color, hp, atkSpd){
-	var self  = Entity(id, x, spdX, y, spdY, width, height, color);
+Actor = function(type, id, x, spdX, y, spdY, width, height, img, hp, atkSpd){
+	var self  = Entity(id, x, spdX, y, spdY, width, height, img);
 	self.type = type;
 	self.hp = hp;
 	self.atkSpd = atkSpd;
@@ -132,7 +133,7 @@ Actor = function(type, id, x, spdX, y, spdY, width, height, color, hp, atkSpd){
 }
 
 enemy = function(id, x, spdX, y, spdY, width, height){
-	let self = Actor('enemy', id, x, spdX, y, spdY, width, height, 'red', 10, 1);
+	let self = Actor('enemy', id, x, spdX, y, spdY, width, height, Img.enemy, 10, 1);
 
 	let super_update = self.update;
 	self.update = function(){
@@ -159,8 +160,8 @@ randomlyGenerateEnemy = function(){
 	enemy(id, x, spdX, y, spdY, width, height);
 }
 
-upgrade = function(id, x, spdX, y, spdY, width, height, color, category){
-	let self = Entity(id, x, spdX, y, spdY, width, height, color);
+upgrade = function(id, x, spdX, y, spdY, width, height, img, category){
+	let self = Entity(id, x, spdX, y, spdY, width, height, img);
 	self.category = category;
 
 	let super_update = self.update;
@@ -188,23 +189,23 @@ randomlyGenerateUpgrade = function(){
 		spdX = 0,
 		spdY = 0,
 		id = Math.random(),
-		color,
+		img,
 		category;
 
 	if(Math.random() < 0.5){
-		color = 'orange';
+		img = Img.upgrade1;
 		category = 'score'; 
 	}
 	else{
-		color = 'purple';
+		img = Img.upgrade2;
 		category = 'attack'; 
 	}
 
-	upgrade(id, x, spdX, y, spdY, width, height, color, category);
+	upgrade(id, x, spdX, y, spdY, width, height, img, category);
 }
 
 bullet = function(id, x, spdX, y, spdY, width, height){
-	let self = Entity(id, x, spdX, y, spdY, width, height, 'back');	
+	let self = Entity(id, x, spdX, y, spdY, width, height, Img.bullet);	
 	self.timer = 0;
 
 	let super_update = self.update;
