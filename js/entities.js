@@ -72,8 +72,15 @@ Entity = function(id, x, spdX, y, spdY, width, height, img) {
 	}
 	self.draw = function(){
 		ctx.save();
-		let x = self.x-self.width/2;
-		let y = self.y-self.height/2;
+		let x = self.x - player.x;
+		let y = self.y -player.y;
+
+		x += WIDTH/2;
+		y += HEIGHT/2;
+
+		x -= self.width/2;
+		y -= self.height/2;
+
 		ctx.drawImage(self.img, 0, 0, self.img.width, self.img.height, x, y, self.width, self.height);
 		ctx.restore();
 	};
