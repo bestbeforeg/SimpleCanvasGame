@@ -1,6 +1,6 @@
 let player;
 Player = function(){
-	let self = Actor('player', 'Player1', 50, 30, 40, 5, 20, 20, Img.player, 10, 1);
+	let self = Actor('player', 'Player1', 50, 30, 40, 5, 30, 45, Img.player, 10, 1);
 
 	self.updatePosition = function(){
 		if(self.pressUp)
@@ -74,7 +74,7 @@ Entity = function(id, x, spdX, y, spdY, width, height, img) {
 		ctx.save();
 		let x = self.x-self.width/2;
 		let y = self.y-self.height/2;
-		ctx.drawImage(self.img, x, y);
+		ctx.drawImage(self.img, 0, 0, self.img.width, self.img.height, x, y, self.width, self.height);
 		ctx.restore();
 	};
 	self.testCollision = function(entity) {
@@ -151,8 +151,8 @@ enemy = function(id, x, spdX, y, spdY, width, height){
 randomlyGenerateEnemy = function(){
 	let x = Math.random()*WIDTH,
 		y = Math.random()*HEIGHT,
-		width = 10 + Math.random()*30,
-		height = 10 + Math.random()*30,
+		width = 50,
+		height = 50,
 		spdX = 5 + Math.random()*5,
 		spdY = 5 + Math.random()*5,
 		id = Math.random();
@@ -184,8 +184,8 @@ upgrade = function(id, x, spdX, y, spdY, width, height, img, category){
 randomlyGenerateUpgrade = function(){
 	let x = Math.random()*WIDTH,
 		y = Math.random()*HEIGHT,
-		width = 10,
-		height = 10,
+		width = 15,
+		height = 15,
 		spdX = 0,
 		spdY = 0,
 		id = Math.random(),
@@ -236,8 +236,8 @@ bullet = function(id, x, spdX, y, spdY, width, height){
 generateBullet = function(actor, aimOverwrite){
 	let x = actor.x,
 		y = actor.y,
-		width = 5,
-		height = 5,
+		width = 10,
+		height = 10,
 		angle = actor.aimAngle;
 
 	if(aimOverwrite !== undefined)
