@@ -5,7 +5,8 @@ let	HEIGHT = 500,
 	WIDTH = 500,
 	startTime = Date.now(),
 	frameCount = 0,
-	score = 0;
+	score = 0,
+	pause = false;
 
 let Img = {};
 Img.player = new Image();
@@ -55,6 +56,8 @@ document.onkeyup = function(event){
 		player.pressLeft = false;
 	if(event.keyCode === 68)
 		player.pressRight = false;
+	if(event.keyCode === 80)
+		pause = !pause;
 }
 
 document.onmousemove = function(mouse) {
@@ -68,6 +71,10 @@ document.onmousemove = function(mouse) {
 }
 
 update = function() {
+	if(pause){
+		ctx.fillText('Paused', WIDTH/2, HEIGHT/2);
+		return;
+	}
 	ctx.clearRect(0, 0, WIDTH, HEIGHT);
 	currentMap.draw();
 	frameCount++;
