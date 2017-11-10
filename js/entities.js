@@ -146,10 +146,6 @@ enemy = function(id, x, spdX, y, spdY, width, height){
 	self.update = function(){
 		super_update();
 		self.performAttack();
-
-		let isColiding = player.testCollision(self);
-		if(isColiding)
-			player.hp--;
 	}
 
 	enemyList[id] = self;
@@ -211,9 +207,10 @@ randomlyGenerateUpgrade = function(){
 	upgrade(id, x, spdX, y, spdY, width, height, img, category);
 }
 
-bullet = function(id, x, spdX, y, spdY, width, height){
+bullet = function(id, x, spdX, y, spdY, width, height, combatType){
 	let self = Entity(id, x, spdX, y, spdY, width, height, Img.bullet);	
 	self.timer = 0;
+	self.combatType = combatType;
 
 	let super_update = self.update;
 	self.update = function(){
@@ -224,13 +221,22 @@ bullet = function(id, x, spdX, y, spdY, width, height){
 		if(self.timer > 75)
 			toRemove = true;
 		
-		for(let key2 in enemyList){
-			// let isColiding = bulletList[key].testCollision(enemyList[key2]);
-			// if(isColiding){
-			// 	toRemove = true;
-			// 	delete enemyList[key2];
-			// 	break;
-			// }
+		if(self.combatType === 'player'){
+			for(let key in enemyList){
+				let isColiding = self.testCollision(enemyList[key]);
+				if(isColiding){
+					toRemove = true;
+					delete enemyList[key];
+					break;
+				}
+			}
+		}
+		else{
+			let isColiding = self.testCollision(player);
+			if(isColiding){
+				toRemove = true;
+				player.hp--;
+			}
 		}
 
 		if(toRemove)
@@ -254,5 +260,5 @@ generateBullet = function(actor, aimOverwrite){
 		spdY = Math.sin(angle/180*Math.PI)*5,
 		id = Math.random();
 
-	bullet(id, x, spdX, y, spdY, width, height);
+	bullet(id, x, spdX, y, spdY, width, height, actor.type);
 }
