@@ -11,8 +11,10 @@ let	HEIGHT = 500,
 let Img = {};
 Img.player = new Image();
 Img.player.src = './img/player.png';
-Img.enemy = new Image();
-Img.enemy.src = './img/enemy.png';
+Img.bat = new Image();
+Img.bat.src = './img/bat.png';
+Img.bee = new Image();
+Img.bee.src = './img/bee.png';
 Img.upgrade1 = new Image();
 Img.upgrade1.src = './img/upgrade1.png';
 Img.upgrade2 = new Image();
@@ -96,6 +98,10 @@ update = function() {
 
 	for(let key in enemyList){
 		enemyList[key].update();
+	}
+	for(let key in enemyList){
+		if(enemyList[key].isDead)
+		delete enemyList[key];
 	}
 
 	player.update();

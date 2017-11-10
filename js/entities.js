@@ -123,14 +123,16 @@ Actor = function(type, id, x, y, width, height, img, hp, atkSpd){
 	return self;
 }
 
-enemy = function(id, x, y, width, height){
-	let self = Actor('enemy', id, x, y, width, height, Img.enemy, 10, 1);
+enemy = function(id, x, y, width, height, img, hp, atkSpd){
+	let self = Actor('enemy', id, x, y, width, height, img, hp, atkSpd);
+	enemyList[id] = self;
 	self.updateAim = function(){
 		let difX = player.x - self.x;
 		let difY = player.y - self.y;
 
 		self.aimAngle = Math.atan2(difY, difX) / Math.PI * 180;
 	}
+	self.isDead = false;
 
 	self.updatePosition = function(){
 		let difX = player.x - self.x;
@@ -152,9 +154,12 @@ enemy = function(id, x, y, width, height){
 		super_update();
 		self.performAttack();
 		self.updateAim();
+		if(self.hp <= 0){
+			self.isDead = true;
+		}
 	}
 
-	enemyList[id] = self;
+	
 }
 
 randomlyGenerateEnemy = function(){
@@ -164,7 +169,12 @@ randomlyGenerateEnemy = function(){
 		height = 64,
 		id = Math.random();
 
-	enemy(id, x, y, width, height);
+	if(Math.random() < 0.5){
+		enemy(id, x, y, width, height, Img.bat, 2, 1);
+	}
+	else{
+		enemy(id, x, y, width, height, Img.bee, 1, 3);
+	}
 }
 
 upgrade = function(id, x, y, width, height, img, category){
@@ -244,7 +254,7 @@ bullet = function(id, x, spdX, y, spdY, width, height, combatType){
 				let isColiding = self.testCollision(enemyList[key]);
 				if(isColiding){
 					toRemove = true;
-					delete enemyList[key];
+					enemyList[key].hp --;
 					break;
 				}
 			}
