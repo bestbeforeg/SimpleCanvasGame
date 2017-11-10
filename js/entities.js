@@ -1,6 +1,6 @@
 let player;
 Player = function(){
-	let self = Actor('player', 'Player1', 50, 30, 40, 5, 50, 70, Img.player, 10, 1);
+	let self = Actor('player', 'Player1', 50, 40, 50, 70, Img.player, 10, 1);
 
 	self.updatePosition = function(){
 		if(self.pressUp)
@@ -44,13 +44,11 @@ let	enemyList = {},
 	upgradeList = {},
 	bulletList = {};
 
-Entity = function(id, x, spdX, y, spdY, width, height, img) {
+Entity = function(id, x, y, width, height, img) {
 	let self = {
 		id : id,
 		x : x,
-		spdX : spdX,
 		y : y,
-		spdY : spdY,
 		width : width,
 		height : height,
 		img : img,
@@ -59,17 +57,7 @@ Entity = function(id, x, spdX, y, spdY, width, height, img) {
 		self.updatePosition();
 		self.draw();
 	}
-	self.updatePosition = function(){
-		self.x += self.spdX;
-		self.y += self.spdY;
-		
-		if(self.x < 0 || self.x > currentMap.width){
-			self.spdX = -self.spdX;
-		}
-		if(self.y < 0 || self.y > currentMap.height){
-			self.spdY = -self.spdY;
-		}
-	}
+	self.updatePosition = function(){};
 	self.draw = function(){
 		ctx.save();
 		let x = self.x - player.x;
@@ -104,8 +92,8 @@ Entity = function(id, x, spdX, y, spdY, width, height, img) {
 	return self;
 }
 
-Actor = function(type, id, x, spdX, y, spdY, width, height, img, hp, atkSpd){
-	var self  = Entity(id, x, spdX, y, spdY, width, height, img);
+Actor = function(type, id, x, y, width, height, img, hp, atkSpd){
+	var self  = Entity(id, x, y, width, height, img);
 	self.type = type;
 	self.hp = hp;
 	self.atkSpd = atkSpd;
@@ -119,10 +107,6 @@ Actor = function(type, id, x, spdX, y, spdY, width, height, img, hp, atkSpd){
 	};
 	self.performSpecialAttack = function() {
 		if(self.attackCounter > 100){
-
-			// for (let angle = 0; angle < 360; angle++) {
-			// 	generateBullet(self, angle);
-			// }
 			generateBullet(self,self.aimAngle - 5);
 			generateBullet(self,self.aimAngle);
 			generateBullet(self,self.aimAngle + 5);
@@ -139,13 +123,35 @@ Actor = function(type, id, x, spdX, y, spdY, width, height, img, hp, atkSpd){
 	return self;
 }
 
-enemy = function(id, x, spdX, y, spdY, width, height){
-	let self = Actor('enemy', id, x, spdX, y, spdY, width, height, Img.enemy, 10, 1);
+enemy = function(id, x, y, width, height){
+	let self = Actor('enemy', id, x, y, width, height, Img.enemy, 10, 1);
+	self.updateAim = function(){
+		let difX = player.x - self.x;
+		let difY = player.y - self.y;
+
+		self.aimAngle = Math.atan2(difY, difX) / Math.PI * 180;
+	}
+
+	self.updatePosition = function(){
+		let difX = player.x - self.x;
+		let difY = player.y - self.y;
+
+		if(difX > 0)
+			self.x += 3;
+		else
+			self.x -= 3;
+
+		if(difY > 0)
+			self.y += 3;
+		else
+			self.y -= 3;
+	}
 
 	let super_update = self.update;
 	self.update = function(){
 		super_update();
 		self.performAttack();
+		self.updateAim();
 	}
 
 	enemyList[id] = self;
@@ -156,15 +162,13 @@ randomlyGenerateEnemy = function(){
 		y = Math.random()*currentMap.height,
 		width = 64,
 		height = 64,
-		spdX = 5 + Math.random()*5,
-		spdY = 5 + Math.random()*5,
 		id = Math.random();
 
-	enemy(id, x, spdX, y, spdY, width, height);
+	enemy(id, x, y, width, height);
 }
 
-upgrade = function(id, x, spdX, y, spdY, width, height, img, category){
-	let self = Entity(id, x, spdX, y, spdY, width, height, img);
+upgrade = function(id, x, y, width, height, img, category){
+	let self = Entity(id, x, y, width, height, img);
 	self.category = category;
 
 	let super_update = self.update;
@@ -204,13 +208,27 @@ randomlyGenerateUpgrade = function(){
 		category = 'attack'; 
 	}
 
-	upgrade(id, x, spdX, y, spdY, width, height, img, category);
+	upgrade(id, x, y, width, height, img, category);
 }
 
 bullet = function(id, x, spdX, y, spdY, width, height, combatType){
-	let self = Entity(id, x, spdX, y, spdY, width, height, Img.bullet);	
+	let self = Entity(id, x, y, width, height, Img.bullet);	
 	self.timer = 0;
 	self.combatType = combatType;
+	self.spdX = spdX;
+	self.spdY = spdY;
+
+	self.updatePosition = function(){
+		self.x += self.spdX;
+		self.y += self.spdY;
+		
+		if(self.x < 0 || self.x > currentMap.width){
+			self.spdX = -self.spdX;
+		}
+		if(self.y < 0 || self.y > currentMap.height){
+			self.spdY = -self.spdY;
+		}
+	}
 
 	let super_update = self.update;
 	self.update = function(){
