@@ -33,8 +33,23 @@ document.onclick = function(mouse){
 	player.performAttack();
 }
 
+document.onmousedown = function (event) {
+	if(event.which === 1)
+		player.pressMouseRight = true;
+	else{
+		player.pressMouseLeft = true;
+	}
+}
+
+document.onmouseup = function (event) {
+	if(event.which === 1)
+		player.pressMouseRight = false;
+	else{
+		player.pressMouseLeft = false;
+	}
+}
+
 document.oncontextmenu = function(mouse){
-	player.performSpecialAttack();
 	mouse.preventDefault();
 }
 

@@ -83,6 +83,14 @@ Actor = function(type, id, x, y, width, height, img, hp, atkSpd){
 let player;
 Player = function(){
 	let self = Actor('player', 'Player1', 50, 40, 50, 70, Img.player, 10, 1);
+	let super_update = self.update;
+	self.update = function () {
+		super_update();
+		if(self.pressMouseRight)
+			self.performAttack();
+		if(self.pressMouseLeft)
+			self.performSpecialAttack();
+	}
 	self.updatePosition = function(){
 		if(self.pressUp)
 			self.y -= 10;
@@ -92,7 +100,7 @@ Player = function(){
 			self.x -= 10;
 		if(self.pressRight)
 			self.x += 10;
-
+		
 		if(self.x < self.width/2)
 			self.x = self.width/2;
 		if(self.x > currentMap.width - self.width/2)
@@ -107,12 +115,13 @@ Player = function(){
 	self.pressDown = false;
 	self.pressLeft = false;
 	self.pressRight = false;
+	self.pressMouseRight = false;
+	self.pressMouseLeft = false;
 	self.onDeath = function(){
 		let surviveTime = Date.now() - startTime;
 		console.log('You lost! You survived ' + surviveTime + ' ms.');
 		startNewGame();
 	}
-	let super_update = self.update;
 	
 	return self;
 };
