@@ -81,46 +81,27 @@ update = function() {
 	currentMap.draw();
 	frameCount++;
 	score++;
-
-	if(frameCount % 100 == 0)
-		randomlyGenerateEnemy();
-
-	if(frameCount % 75 == 0)
-		randomlyGenerateUpgrade();
 	
-	for(let key in upgradeList){
-		upgradeList[key].update();
-	}
-
-	for(let key in bulletList){
-		bulletList[key].update();
-	}
-
-	for(let key in enemyList){
-		enemyList[key].update();
-	}
-	for(let key in enemyList){
-		if(enemyList[key].isDead)
-		delete enemyList[key];
-	}
-
 	player.update();
+	Enemy.update();
+	Upgrade.update();
+	Bullet.update();
 
 	ctx.fillText(player.hp + ' HP', 0, 30);
 	ctx.fillText('Score: ' + score, 200, 30);
 }
 
 startNewGame = function(){
-	player.hp = 10;
+	player = Player();
 	startTime = Date.now();
 	frameCount = 0;
 	score = 0;
-	enemyList = {};
-	upgradeList = {};
-	bulletList = {};
-	randomlyGenerateEnemy();
-	randomlyGenerateEnemy();
-	randomlyGenerateEnemy();
+	Enemy.List = {};
+	Upgrade.List = {};
+	Bullet.List = {};
+	Enemy.randomlyGenerate();
+	Enemy.randomlyGenerate();
+	Enemy.randomlyGenerate();
 }
 
 maps = function(id, imgSrc, width, height){

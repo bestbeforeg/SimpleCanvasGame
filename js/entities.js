@@ -1,49 +1,3 @@
-let player;
-Player = function(){
-	let self = Actor('player', 'Player1', 50, 40, 50, 70, Img.player, 10, 1);
-
-	self.updatePosition = function(){
-		if(self.pressUp)
-			self.y -= 10;
-		if(self.pressDown)
-			self.y += 10;
-		if(self.pressLeft)
-			self.x -= 10;
-		if(self.pressRight)
-			self.x += 10;
-
-		if(self.x < self.width/2)
-			self.x = self.width/2;
-		if(self.x > currentMap.width - self.width/2)
-			self.x = currentMap.width - self.width/2;
-		if(self.y < self.height/2)
-			self.y = self.height/2;
-		if(self.y > currentMap.height - self.height/2)
-			self.y = currentMap.height - self.height/2;
-	}
-
-	self.pressUp = false;
-	self.pressDown = false;
-	self.pressLeft = false;
-	self.pressRight = false;
-
-	let super_update = self.update;
-	self.update = function(){
-		super_update();
-		if(self.hp <= 0){
-			let surviveTime = Date.now() - startTime;
-			console.log('You lost! You survived ' + surviveTime + ' ms.');
-			startNewGame();
-		}
-	}
-	
-	return self;
-};
-
-let	enemyList = {},
-	upgradeList = {},
-	bulletList = {};
-
 Entity = function(id, x, y, width, height, img) {
 	let self = {
 		id : id,
@@ -99,17 +53,18 @@ Actor = function(type, id, x, y, width, height, img, hp, atkSpd){
 	self.atkSpd = atkSpd;
 	self.aimAngle = 0;
 	self.attackCounter = 0;
+	self.onDeath = function(){};
 	self.performAttack = function() {
 		if(self.attackCounter > 25){
-			generateBullet(self);
+			Bullet.generate(self);
 			self.attackCounter = 0;
 		} 
 	};
 	self.performSpecialAttack = function() {
 		if(self.attackCounter > 100){
-			generateBullet(self,self.aimAngle - 5);
-			generateBullet(self,self.aimAngle);
-			generateBullet(self,self.aimAngle + 5);
+			Bullet.generate(self,self.aimAngle - 5);
+			Bullet.generate(self,self.aimAngle);
+			Bullet.generate(self,self.aimAngle + 5);
 
 			self.attackCounter = 0;
 		}
@@ -118,22 +73,60 @@ Actor = function(type, id, x, y, width, height, img, hp, atkSpd){
 	self.update = function(){
 		super_update();
 		self.attackCounter+=self.atkSpd;
+		if(self.hp <= 0)
+			self.onDeath();
 	}
 
 	return self;
 }
 
-enemy = function(id, x, y, width, height, img, hp, atkSpd){
+let player;
+Player = function(){
+	let self = Actor('player', 'Player1', 50, 40, 50, 70, Img.player, 10, 1);
+	self.updatePosition = function(){
+		if(self.pressUp)
+			self.y -= 10;
+		if(self.pressDown)
+			self.y += 10;
+		if(self.pressLeft)
+			self.x -= 10;
+		if(self.pressRight)
+			self.x += 10;
+
+		if(self.x < self.width/2)
+			self.x = self.width/2;
+		if(self.x > currentMap.width - self.width/2)
+			self.x = currentMap.width - self.width/2;
+		if(self.y < self.height/2)
+			self.y = self.height/2;
+		if(self.y > currentMap.height - self.height/2)
+			self.y = currentMap.height - self.height/2;
+	}
+
+	self.pressUp = false;
+	self.pressDown = false;
+	self.pressLeft = false;
+	self.pressRight = false;
+	self.onDeath = function(){
+		let surviveTime = Date.now() - startTime;
+		console.log('You lost! You survived ' + surviveTime + ' ms.');
+		startNewGame();
+	}
+	let super_update = self.update;
+	
+	return self;
+};
+
+Enemy = function(id, x, y, width, height, img, hp, atkSpd){
 	let self = Actor('enemy', id, x, y, width, height, img, hp, atkSpd);
-	enemyList[id] = self;
+	Enemy.List[id] = self;
+	self.isDead = false;
 	self.updateAim = function(){
 		let difX = player.x - self.x;
 		let difY = player.y - self.y;
 
 		self.aimAngle = Math.atan2(difY, difX) / Math.PI * 180;
 	}
-	self.isDead = false;
-
 	self.updatePosition = function(){
 		let difX = player.x - self.x;
 		let difY = player.y - self.y;
@@ -153,16 +146,28 @@ enemy = function(id, x, y, width, height, img, hp, atkSpd){
 	self.update = function(){
 		super_update();
 		self.performAttack();
-		self.updateAim();
-		if(self.hp <= 0){
-			self.isDead = true;
-		}
+		self.updateAim();	
 	}
-
-	
+	self.onDeath = function () {
+		self.isDead = true;
+	};
 }
 
-randomlyGenerateEnemy = function(){
+Enemy.List = {};
+
+Enemy.update = function () {
+	if(frameCount % 100 == 0)
+		Enemy.randomlyGenerate();
+	for(let key in Enemy.List){
+		Enemy.List[key].update();
+	}
+	for(let key in Enemy.List){
+		if(Enemy.List[key].isDead)
+		delete Enemy.List[key];
+	}
+}
+
+Enemy.randomlyGenerate = function(){
 	let x = Math.random()*currentMap.width,
 		y = Math.random()*currentMap.height,
 		width = 64,
@@ -170,14 +175,14 @@ randomlyGenerateEnemy = function(){
 		id = Math.random();
 
 	if(Math.random() < 0.5){
-		enemy(id, x, y, width, height, Img.bat, 2, 1);
+		Enemy(id, x, y, width, height, Img.bat, 2, 1);
 	}
 	else{
-		enemy(id, x, y, width, height, Img.bee, 1, 3);
+		Enemy(id, x, y, width, height, Img.bee, 1, 3);
 	}
 }
 
-upgrade = function(id, x, y, width, height, img, category){
+Upgrade = function(id, x, y, width, height, img, category){
 	let self = Entity(id, x, y, width, height, img);
 	self.category = category;
 
@@ -191,14 +196,16 @@ upgrade = function(id, x, y, width, height, img, category){
 			else
 				player.atkSpd += 3;
 
-			delete upgradeList[self.id];
+			delete Upgrade.List[self.id];
 		}
 	}
 
-	upgradeList[id] = self;
+	Upgrade.List[id] = self;
 }
 
-randomlyGenerateUpgrade = function(){
+Upgrade.List = {};
+
+Upgrade.randomlyGenerate = function(){
 	let x = Math.random()*currentMap.width,
 		y = Math.random()*currentMap.height,
 		width = 30,
@@ -218,10 +225,19 @@ randomlyGenerateUpgrade = function(){
 		category = 'attack'; 
 	}
 
-	upgrade(id, x, y, width, height, img, category);
+	Upgrade(id, x, y, width, height, img, category);
 }
 
-bullet = function(id, x, spdX, y, spdY, width, height, combatType){
+Upgrade.update = function () {
+	if(frameCount % 75 == 0)
+		Upgrade.randomlyGenerate();
+		
+	for(let key in Upgrade.List){
+		Upgrade.List[key].update();
+	}
+};
+
+Bullet = function(id, x, spdX, y, spdY, width, height, combatType){
 	let self = Entity(id, x, y, width, height, Img.bullet);	
 	self.timer = 0;
 	self.combatType = combatType;
@@ -250,11 +266,11 @@ bullet = function(id, x, spdX, y, spdY, width, height, combatType){
 			toRemove = true;
 		
 		if(self.combatType === 'player'){
-			for(let key in enemyList){
-				let isColiding = self.testCollision(enemyList[key]);
+			for(let key in Enemy.List){
+				let isColiding = self.testCollision(Enemy.List[key]);
 				if(isColiding){
 					toRemove = true;
-					enemyList[key].hp --;
+					Enemy.List[key].hp --;
 					break;
 				}
 			}
@@ -268,13 +284,15 @@ bullet = function(id, x, spdX, y, spdY, width, height, combatType){
 		}
 
 		if(toRemove)
-			delete bulletList[self.id];
+			delete Bullet.List[self.id];
 	}
 	
-	bulletList[id] = self;
+	Bullet.List[id] = self;
 }
 
-generateBullet = function(actor, aimOverwrite){
+Bullet.List = {};
+
+Bullet.generate = function(actor, aimOverwrite){
 	let x = actor.x,
 		y = actor.y,
 		width = 20,
@@ -288,5 +306,11 @@ generateBullet = function(actor, aimOverwrite){
 		spdY = Math.sin(angle/180*Math.PI)*5,
 		id = Math.random();
 
-	bullet(id, x, spdX, y, spdY, width, height, actor.type);
+	Bullet(id, x, spdX, y, spdY, width, height, actor.type);
+}
+
+Bullet.update = function () {
+	for(let key in Bullet.List){
+		Bullet.List[key].update();
+	}
 }
