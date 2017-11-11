@@ -86,9 +86,9 @@ Player = function(){
 	let super_update = self.update;
 	self.update = function () {
 		super_update();
-		if(self.pressMouseRight)
-			self.performAttack();
 		if(self.pressMouseLeft)
+			self.performAttack();
+		if(self.pressMouseRight)
 			self.performSpecialAttack();
 	}
 	self.updatePosition = function(){
