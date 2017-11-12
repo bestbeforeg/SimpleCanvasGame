@@ -50,6 +50,7 @@ Actor = function(type, id, x, y, width, height, img, hp, atkSpd){
 	var self  = Entity(id, x, y, width, height, img);
 	self.type = type;
 	self.hp = hp;
+	self.hpMax = hp;
 	self.atkSpd = atkSpd;
 	self.aimAngle = 0;
 	self.attackCounter = 0;
@@ -150,7 +151,25 @@ Enemy = function(id, x, y, width, height, img, hp, atkSpd){
 		else
 			self.y -= 3;
 	}
+	let super_draw = self.draw;
+	self.draw = function () {
+		super_draw();
+		let x = self.x - player.x + WIDTH/2;
+		let y = self.y - player.y + HEIGHT/2 - 20;
 
+		ctx.save();
+		ctx.fillStyle = 'red';
+		let width = 100*self.hp/self.hpMax;
+		if(width < 0)
+			width = 0;
+		ctx.fillRect(x - 50, y - 25, width, 10)
+		ctx.strokeSyle = 'black';
+		ctx.strokeRect(x - 50, y - 25, width, 10); 
+
+		ctx.restore();
+
+
+	}
 	let super_update = self.update;
 	self.update = function(){
 		super_update();
