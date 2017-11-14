@@ -105,18 +105,40 @@ Actor = function(type, id, x, y, width, height, img, hp, atkSpd){
 		ctx.restore();
 	};
 	self.updatePosition = function(){
-		let oldX = self.x,
-			oldY = self.y;
+		let bumpLeft = {x : self.x - 40, y : self.y},
+			bumpRight = {x : self.x + 40, y : self.y},
+			bumpUp = {x : self.x, y : self.y - 16},
+			bumpDown = {x : self.x, y : self.y + 64};
 
-		if(self.pressUp)
-			self.y -= self.maxMoveSpd;
-		if(self.pressDown)
-			self.y += self.maxMoveSpd;
-		if(self.pressLeft)
-			self.x -= self.maxMoveSpd;
-		if(self.pressRight)
-			self.x += self.maxMoveSpd;
 		
+		if(Maps.current.isPositionWall(bumpUp)){
+			self.y += 5;
+		}
+		else{
+			if(self.pressUp)
+				self.y -= self.maxMoveSpd;
+		}
+		if(Maps.current.isPositionWall(bumpDown)){
+			self.y -= 5;
+		}
+		else{
+			if(self.pressDown)
+				self.y += self.maxMoveSpd;
+		}
+		if(Maps.current.isPositionWall(bumpLeft)){
+			self.x += 5;
+		}else{
+			if(self.pressLeft)
+				self.x -= self.maxMoveSpd;
+		}
+		if(Maps.current.isPositionWall(bumpRight)){
+			self.x -= 5;
+		}
+		else{
+			if(self.pressRight)
+				self.x += self.maxMoveSpd;
+		}
+
 		if(self.x < self.width/2)
 			self.x = self.width/2;
 		if(self.x > Maps.current.width - self.width/2)
@@ -125,11 +147,6 @@ Actor = function(type, id, x, y, width, height, img, hp, atkSpd){
 			self.y = self.height/2;
 		if(self.y > Maps.current.height - self.height/2)
 			self.y = Maps.current.height - self.height/2;
-
-		if(Maps.current.isPositionWall(self)){
-			self.x = oldX;
-			self.y = oldY;
-		}
 	}
 	let super_update = self.update;
 	self.update = function(){
