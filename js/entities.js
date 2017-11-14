@@ -113,7 +113,7 @@ Actor = function(type, id, x, y, width, height, img, hp, atkSpd){
 
 let player;
 Player = function(){
-	let self = Actor('player', 'Player1', 50, 40, 50, 70, Img.player, 10, 1);
+	let self = Actor('player', 'Player1', 50, 40, 50*1.5, 70*1.5, Img.player, 10, 1);
 	let super_update = self.update;
 	self.update = function () {
 		super_update();
@@ -136,12 +136,12 @@ Player = function(){
 		
 		if(self.x < self.width/2)
 			self.x = self.width/2;
-		if(self.x > currentMap.width - self.width/2)
-			self.x = currentMap.width - self.width/2;
+		if(self.x > Maps.current.width - self.width/2)
+			self.x = Maps.current.width - self.width/2;
 		if(self.y < self.height/2)
 			self.y = self.height/2;
-		if(self.y > currentMap.height - self.height/2)
-			self.y = currentMap.height - self.height/2;
+		if(self.y > Maps.current.height - self.height/2)
+			self.y = Maps.current.height - self.height/2;
 	}
 
 	self.pressUp = false;
@@ -229,10 +229,10 @@ Enemy.update = function () {
 }
 
 Enemy.randomlyGenerate = function(){
-	let x = Math.random()*currentMap.width,
-		y = Math.random()*currentMap.height,
-		width = 64,
-		height = 64,
+	let x = Math.random()*Maps.current.width,
+		y = Math.random()*Maps.current.height,
+		width = 64*1.5,
+		height = 64*1.5,
 		id = Math.random();
 
 	if(Math.random() < 0.5){
@@ -267,8 +267,8 @@ Upgrade = function(id, x, y, width, height, img, category){
 Upgrade.List = {};
 
 Upgrade.randomlyGenerate = function(){
-	let x = Math.random()*currentMap.width,
-		y = Math.random()*currentMap.height,
+	let x = Math.random()*Maps.current.width,
+		y = Math.random()*Maps.current.height,
 		width = 30,
 		height = 30,
 		spdX = 0,
@@ -309,10 +309,10 @@ Bullet = function(id, x, spdX, y, spdY, width, height, combatType){
 		self.x += self.spdX;
 		self.y += self.spdY;
 		
-		if(self.x < 0 || self.x > currentMap.width){
+		if(self.x < 0 || self.x > Maps.current.width){
 			self.spdX = -self.spdX;
 		}
-		if(self.y < 0 || self.y > currentMap.height){
+		if(self.y < 0 || self.y > Maps.current.height){
 			self.spdY = -self.spdY;
 		}
 	}
@@ -343,6 +343,8 @@ Bullet = function(id, x, spdX, y, spdY, width, height, combatType){
 				player.hp--;
 			}
 		}
+		if(Maps.current.isPositionWall(self))	
+			toRemove = true;
 
 		if(toRemove)
 			delete Bullet.List[self.id];
