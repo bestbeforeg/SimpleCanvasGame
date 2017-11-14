@@ -125,6 +125,9 @@ Player = function(){
 			self.performSpecialAttack();
 	}
 	self.updatePosition = function(){
+		let oldX = self.x,
+			oldY = self.y;
+
 		if(self.pressUp)
 			self.y -= 10;
 		if(self.pressDown)
@@ -142,6 +145,11 @@ Player = function(){
 			self.y = self.height/2;
 		if(self.y > Maps.current.height - self.height/2)
 			self.y = Maps.current.height - self.height/2;
+
+		if(Maps.current.isPositionWall(self)){
+			self.x = oldX;
+			self.y = oldY;
+		}
 	}
 
 	self.pressUp = false;
@@ -170,8 +178,10 @@ Enemy = function(id, x, y, width, height, img, hp, atkSpd){
 		self.aimAngle = Math.atan2(difY, difX) / Math.PI * 180;
 	}
 	self.updatePosition = function(){
-		let difX = player.x - self.x;
-		let difY = player.y - self.y;
+		let difX = player.x - self.x,
+			difY = player.y - self.y,
+			oldX = self.x,
+			oldY = self.y;
 
 		if(difX > 0)
 			self.x += 3;
@@ -182,6 +192,11 @@ Enemy = function(id, x, y, width, height, img, hp, atkSpd){
 			self.y += 3;
 		else
 			self.y -= 3;
+
+		if(Maps.current.isPositionWall(self)){
+			self.x = oldX;
+			self.y = oldY;
+		}
 	}
 	let super_draw = self.draw;
 	self.draw = function () {
