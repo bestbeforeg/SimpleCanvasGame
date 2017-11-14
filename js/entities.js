@@ -54,6 +54,11 @@ Actor = function(type, id, x, y, width, height, img, hp, atkSpd){
 	self.atkSpd = atkSpd;
 	self.aimAngle = 0;
 	self.attackCounter = 0;
+	self.pressUp = false;
+	self.pressDown = false;
+	self.pressLeft = false;
+	self.pressRight = false;
+	self.maxMoveSpd = 3;
 	self.onDeath = function(){};
 	self.performAttack = function() {
 		if(self.attackCounter > 25){
@@ -76,7 +81,6 @@ Actor = function(type, id, x, y, width, height, img, hp, atkSpd){
 		let x = self.x - player.x;
 		let y = self.y -player.y;
 		
-
 		x += WIDTH/2;
 		y += HEIGHT/2;
 
@@ -100,42 +104,18 @@ Actor = function(type, id, x, y, width, height, img, hp, atkSpd){
 		ctx.drawImage(self.img, walking*frameWidth, direction*frameHeight, frameWidth, frameHeight, x, y, self.width, self.height);
 		ctx.restore();
 	};
-	let super_update = self.update;
-	self.update = function(){
-		super_update();
-		self.attackCounter+=self.atkSpd;
-		if(self.hp <= 0)
-			self.onDeath();
-	}
-
-	return self;
-}
-
-let player;
-Player = function(){
-	let self = Actor('player', 'Player1', 50, 40, 50*1.5, 70*1.5, Img.player, 10, 1);
-	let super_update = self.update;
-	self.update = function () {
-		super_update();
-		if(self.pressUp || self.pressDown || self.pressLeft || self.pressRight)
-			self.walkingAnim += 0.2;
-		if(self.pressMouseLeft)
-			self.performAttack();
-		if(self.pressMouseRight)
-			self.performSpecialAttack();
-	}
 	self.updatePosition = function(){
 		let oldX = self.x,
 			oldY = self.y;
 
 		if(self.pressUp)
-			self.y -= 10;
+			self.y -= self.maxMoveSpd;
 		if(self.pressDown)
-			self.y += 10;
+			self.y += self.maxMoveSpd;
 		if(self.pressLeft)
-			self.x -= 10;
+			self.x -= self.maxMoveSpd;
 		if(self.pressRight)
-			self.x += 10;
+			self.x += self.maxMoveSpd;
 		
 		if(self.x < self.width/2)
 			self.x = self.width/2;
@@ -151,17 +131,39 @@ Player = function(){
 			self.y = oldY;
 		}
 	}
+	let super_update = self.update;
+	self.update = function(){
+		super_update();
+		self.attackCounter+=self.atkSpd;
+		if(self.hp <= 0)
+			self.onDeath();
+	}
 
-	self.pressUp = false;
-	self.pressDown = false;
-	self.pressLeft = false;
-	self.pressRight = false;
+	return self;
+}
+
+let player;
+Player = function(){
+	let self = Actor('player', 'Player1', 50, 40, 50*1.5, 70*1.5, Img.player, 10, 1);
+	self.maxMoveSpd = 10;	
 	self.pressMouseRight = false;
 	self.pressMouseLeft = false;
+
 	self.onDeath = function(){
 		let surviveTime = Date.now() - startTime;
 		console.log('You lost! You survived ' + surviveTime + ' ms.');
 		startNewGame();
+	}
+
+	let super_update = self.update;
+	self.update = function () {
+		super_update();
+		if(self.pressUp || self.pressDown || self.pressLeft || self.pressRight)
+			self.walkingAnim += 0.2;
+		if(self.pressMouseLeft)
+			self.performAttack();
+		if(self.pressMouseRight)
+			self.performSpecialAttack();
 	}
 	
 	return self;
@@ -177,27 +179,16 @@ Enemy = function(id, x, y, width, height, img, hp, atkSpd){
 
 		self.aimAngle = Math.atan2(difY, difX) / Math.PI * 180;
 	}
-	self.updatePosition = function(){
-		let difX = player.x - self.x,
-			difY = player.y - self.y,
-			oldX = self.x,
-			oldY = self.y;
+	self.updateKeyPress = function(){
+		let difX = player.x - self.x;
+		let difY = player.y - self.y;
 
-		if(difX > 0)
-			self.x += 3;
-		else
-			self.x -= 3;
-
-		if(difY > 0)
-			self.y += 3;
-		else
-			self.y -= 3;
-
-		if(Maps.current.isPositionWall(self)){
-			self.x = oldX;
-			self.y = oldY;
-		}
+		self.pressRight = difX > 3;
+		self.pressLeft = difX < -3;
+		self.pressUp = difY < -3;
+		self.pressDown = difY > 3;
 	}
+
 	let super_draw = self.draw;
 	self.draw = function () {
 		super_draw();
@@ -214,18 +205,18 @@ Enemy = function(id, x, y, width, height, img, hp, atkSpd){
 		ctx.strokeRect(x - 50, y - 25, width, 10); 
 
 		ctx.restore();
-
-
+	}	
+	self.onDeath = function () {
+		self.isDead = true;
 	}
+
 	let super_update = self.update;
 	self.update = function(){
 		super_update();
 		self.walkingAnim += 0.2;
+		self.updateAim();
+		self.updateKeyPress();
 		self.performAttack();
-		self.updateAim();	
-	}
-	self.onDeath = function () {
-		self.isDead = true;
 	};
 }
 
