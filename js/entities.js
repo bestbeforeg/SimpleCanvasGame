@@ -70,6 +70,36 @@ Actor = function(type, id, x, y, width, height, img, hp, atkSpd){
 			self.attackCounter = 0;
 		}
 	}
+	self.walkingAnim = 0;
+	self.draw = function(){
+		ctx.save();
+		let x = self.x - player.x;
+		let y = self.y -player.y;
+		
+
+		x += WIDTH/2;
+		y += HEIGHT/2;
+
+		x -= self.width/2;
+		y -= self.height/2;
+
+		let frameWidth = self.img.width/3;
+		let frameHeight = self.img.height/4;
+		var direction = 3;
+		if(self.aimAngle < 0)
+			self.aimAngle += 360;
+		if(self.aimAngle >= 45 && self.aimAngle < 135 )
+			direction = 2;
+		if(self.aimAngle >= 135 && self.aimAngle < 225 )
+			direction = 1;
+		if(self.aimAngle >= 225 && self.aimAngle < 315 )
+			direction = 0;
+
+		let walking = Math.floor(self.walkingAnim) % 3;
+
+		ctx.drawImage(self.img, walking*frameWidth, direction*frameHeight, frameWidth, frameHeight, x, y, self.width, self.height);
+		ctx.restore();
+	};
 	let super_update = self.update;
 	self.update = function(){
 		super_update();
@@ -87,6 +117,8 @@ Player = function(){
 	let super_update = self.update;
 	self.update = function () {
 		super_update();
+		if(self.pressUp || self.pressDown || self.pressLeft || self.pressRight)
+			self.walkingAnim += 0.2;
 		if(self.pressMouseLeft)
 			self.performAttack();
 		if(self.pressMouseRight)
@@ -173,6 +205,7 @@ Enemy = function(id, x, y, width, height, img, hp, atkSpd){
 	let super_update = self.update;
 	self.update = function(){
 		super_update();
+		self.walkingAnim += 0.2;
 		self.performAttack();
 		self.updateAim();	
 	}
