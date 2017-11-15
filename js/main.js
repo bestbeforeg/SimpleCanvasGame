@@ -1,13 +1,44 @@
-let ctx = document.getElementById('ctx').getContext('2d');
-ctx.font = '30px Arial';
-
-let	HEIGHT = 500,
-	WIDTH = 500,
+let canvas = document.getElementById('canvas'),
+	ctx = canvas.getContext('2d'),
+	WIDTH = 640,
+	HEIGHT = 360,
+	CANVAS_WIDTH = 640,
+	CANVAS_HEIGHT = 360,
 	startTime = Date.now(),
-	frameCount = 0,
+	TILE_SIZE = 32;
+
+let resizeCanvas = function(){
+	let ratio = 16/9;
+	CANVAS_WIDTH = window.innerWidth - 4;
+	CANVAS_HEIGHT = window.innerHeight - 4;
+	if(CANVAS_HEIGHT <  CANVAS_WIDTH / ratio)
+		CANVAS_WIDTH = CANVAS_HEIGHT * ratio;
+	else
+		CANVAS_HEIGHT = CANVAS_WIDTH / ratio; 
+
+	canvas.width = WIDTH;
+	canvas.height = HEIGHT;
+	ctx.font = '30px Arial';
+	ctx.mozImageSmoothingEnabled = false;	//better graphics for pixel art
+	ctx.msImageSmoothingEnabled = false;
+	ctx.imageSmoothingEnabled = false;
+
+	canvas.style.width = '' + CANVAS_WIDTH + 'px';
+	canvas.style.height = '' + CANVAS_HEIGHT + 'px';
+}
+resizeCanvas();
+
+window.addEventListener('resize',function(){
+  resizeCanvas();
+});
+
+window.addEventListener('resize', function(){
+	resizeCanvas();
+})
+	
+let frameCount = 0,
 	score = 0,
 	pause = false;
-	TILE_SIZE = 32;
 
 let Img = {};
 Img.player = new Image();
@@ -79,11 +110,11 @@ document.onkeyup = function(event){
 }
 
 document.onmousemove = function(mouse) {
-	let mouseX = mouse.clientX - document.getElementById('ctx').getBoundingClientRect().left;
-	let mouseY = mouse.clientY - document.getElementById('ctx').getBoundingClientRect().top;
+	let mouseX = mouse.clientX - canvas.getBoundingClientRect().left;
+	let mouseY = mouse.clientY - canvas.getBoundingClientRect().top;
 	
-	mouseX -= WIDTH/2;
-	mouseY -= HEIGHT/2;
+	mouseX -= CANVAS_WIDTH/2;
+	mouseY -= CANVAS_HEIGHT/2;
 	
 	player.aimAngle = Math.atan2(mouseY,mouseX) / Math.PI * 180;
 }
@@ -129,20 +160,23 @@ Maps = function(id, imgSrc, grid){
 		grid : grid,
 	}
 	self.img.src = imgSrc;
-	self.draw = function(){
-		let x = WIDTH/2 - player.x;
-		let y = WIDTH/2 - player.y;
-		ctx.drawImage(self.img, 0, 0, self.img.width, self.img.height, x, y, self.img.width*2, self.img.height*2);
-	}
+
 	self.isPositionWall = function(pt){
 		let gridX = Math.floor(pt.x / TILE_SIZE),
 			gridY = Math.floor(pt.y / TILE_SIZE);
-		if(gridX < 0 || gridX > self.grid[0].length)
+		if(gridX < 0 || gridX >= self.grid[0].length)
 			return true;
-		if(gridY < 0 || gridY > self.grid.length)
+		if(gridY < 0 || gridY >= self.grid.length)
 			return true;
 		return self.grid[gridY][gridX];
 	}
+
+	self.draw = function(){
+		let x = WIDTH/2 - player.x;
+		let y = HEIGHT/2 - player.y;
+		ctx.drawImage(self.img,0,0,self.img.width,self.img.height,x,y,self.img.width*2,self.img.height*2);
+	}
+	
 	return self;
 }
 
